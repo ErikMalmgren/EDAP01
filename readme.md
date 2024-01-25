@@ -1,1 +1,1 @@
-Detta är mina lösning i EDAP01
+Detta är mina lösningar i EDAP01
