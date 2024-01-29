@@ -71,10 +71,16 @@ def opponents_move(env):
     return state, reward, done
 
 
+def minimax(state, depth, alpha, beta, maxiPlayer):
+    
+    return 0
+
 def eval_board(state, piece):
     score = 0
     rows = state.shape[0]
     cols = state.shape[1]
+
+    # Man kan värdera positioner i mitten högre här ifall det inte duger prestandamässigt
 
     # Kolla horisontellt
     for i in range(rows):
@@ -134,8 +140,8 @@ def student_move(state):
     (and change where it is called).
     The function should return a move from 0-6
     """
-
-    print(eval_board(state, piece))
+    
+    print(eval_board(state, 1))
     return random.choice([0, 1, 2, 3, 4, 5, 6])
 
 
