@@ -79,11 +79,11 @@ def make_move(state, piece, column):
 
 
 def minimax(state, depth, alpha, beta, maxiPlayer):
-    valid_moves = np.any(state == 0, axis=0)
+    valid_moves = np.where(np.any(state == 0, axis=0))[0]
     best_move = -1
     best_eval = -math.inf
-
-    for move in range(len(valid_moves)):
+    print("Valid moves: ", valid_moves)
+    for move in valid_moves:
         state_copy = state.copy()
         make_move(state_copy, 1, move)
         if eval_board(state_copy, 1) > best_eval:
