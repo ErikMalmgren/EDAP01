@@ -1,3 +1,4 @@
+import math
 import gym
 import random
 import requests
@@ -70,10 +71,29 @@ def opponents_move(env):
     env.change_player()  # change back to student before returning
     return state, reward, done
 
+def make_move(state, piece, column):
+    for row in range(state.shape[0]-1, -1, -1):
+        if state[row, column] == 0:
+            state[row, column] = piece
+            return
+
 
 def minimax(state, depth, alpha, beta, maxiPlayer):
+    valid_moves = np.any(state == 0, axis=0)
+    best_move = -1
+    best_eval = -math.inf
+
+ 
     
-    return 0
+    for move in range(len(valid_moves)):
+        state_copy = state.copy()
+        make_move(state_copy, 1, move)
+        if eval_board(state_copy, 1) > best_eval:
+            best_move = move
+            best_eval = eval_board(state_copy, 1)
+
+    print("Bestmove: ", best_move)
+    return best_move
 
 def eval_board(state, piece):
     score = 0
@@ -141,8 +161,7 @@ def student_move(state):
     The function should return a move from 0-6
     """
     
-    print(eval_board(state, 1))
-    return random.choice([0, 1, 2, 3, 4, 5, 6])
+    return minimax(state, 0,0,0,0)
 
 
 def play_game(vs_server=False):
