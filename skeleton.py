@@ -1,4 +1,5 @@
 import math
+import time
 import gym
 import random
 import requests
@@ -77,21 +78,65 @@ def make_move(state, piece, column):
             state[row, column] = piece
             return
 
+def game_end(state):
+    # Win
+    if eval_board(state, 1) > 600:
+        return 1
+    # AI Win
+    if eval_board(state, -1) > 600:
+        return -1 
+    # Draw
+    if np.count_nonzero(state == 0) == 0:
+        return 0
+    return 2
 
 def minimax(state, depth, alpha, beta, maxiPlayer):
     valid_moves = np.where(np.any(state == 0, axis=0))[0]
-    best_move = -1
-    best_eval = -math.inf
-    print("Valid moves: ", valid_moves)
-    for move in valid_moves:
-        state_copy = state.copy()
-        make_move(state_copy, 1, move)
-        if eval_board(state_copy, 1) > best_eval:
-            best_move = move
-            best_eval = eval_board(state_copy, 1)
+    is_terminal = game_end(state)
 
-    print("Bestmove: ", best_move)
-    return best_move
+    if is_terminal == -1:
+        return (None, 10000000000)
+    elif is_terminal == 1:
+        return (None, -10000000000)
+    elif is_terminal == 0:
+        return (None, 0)
+
+    if depth == 0:
+        return (None, eval_board(state, -1))
+    
+   
+    if maxiPlayer:
+        best_move = random.choice(valid_moves)
+        best_eval = -math.inf
+
+        for move in valid_moves:
+            state_copy = state.copy()
+            make_move(state_copy, -1, move)
+
+            new_eval = minimax(state_copy, depth -1, alpha, beta, False)[1]
+            if new_eval > best_eval:
+                best_eval = new_eval
+                best_move = move
+            alpha = max(alpha, best_eval)
+            if alpha >= beta:
+                break
+        return best_move, best_eval
+
+    else:
+        best_move = random.choice(valid_moves)
+        best_eval = math.inf
+        for move in valid_moves:
+            state_copy = state.copy()
+            make_move(state_copy, 1, move)
+            new_score = minimax(state_copy, depth -1, alpha, beta, True)[1]
+            if new_score < best_eval:
+                best_eval = new_score
+                best_move = move
+            beta = min(beta, best_eval)
+            if alpha >= beta:
+                break
+        return best_move, best_eval
+    
 
 def eval_board(state, piece):
     score = 0
@@ -99,6 +144,10 @@ def eval_board(state, piece):
     cols = state.shape[1]
 
     # Man kan värdera positioner i mitten högre här ifall det inte duger prestandamässigt
+
+    center_column = state[:,3]
+    center_pieces = np.count_nonzero(center_column == piece)
+    score += center_pieces * 3
 
     # Kolla horisontellt
     for i in range(rows):
@@ -134,19 +183,27 @@ def eval_window(window, piece):
     if piece == 1:
         opponent = -1
 
-    count = np.count_nonzero(window == piece)
-    countOpponent = np.count_nonzero(window == opponent)
-    countEmpty = np.count_nonzero(window == 0)
+    count = 0
+    countOpponent = 0
+    countEmpty = 0
+
+    for val in window:
+        if val == piece:
+            count += 1
+        if val == opponent:
+            countOpponent += 1
+        if val == 0:
+            countEmpty += 1
 
     if count == 4:
-        score += 100
+        score += 1000
     elif count == 3 and countEmpty == 1:
         score += 5
     elif count == 2 and countEmpty == 2:
         score += 2
 
     if countOpponent == 3 and countEmpty == 1:
-        score -= 4
+        score -= 100
 
     return score
 
@@ -158,8 +215,11 @@ def student_move(state):
     (and change where it is called).
     The function should return a move from 0-6
     """
-    
-    return minimax(state, 0,0,0,0)
+    now = time.time()
+    res = minimax(state, 5, -math.inf, math.inf, True)[0]
+    duration = time.time() - now
+    print("Calc Time: ", duration)
+    return res
 
 
 def play_game(vs_server=False):
