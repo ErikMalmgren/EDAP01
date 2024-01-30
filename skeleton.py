@@ -83,8 +83,6 @@ def minimax(state, depth, alpha, beta, maxiPlayer):
     best_move = -1
     best_eval = -math.inf
 
- 
-    
     for move in range(len(valid_moves)):
         state_copy = state.copy()
         make_move(state_copy, 1, move)
