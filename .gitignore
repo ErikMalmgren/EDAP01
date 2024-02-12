@@ -1,2 +1,4 @@
 *.prof
 AIsolution/
+*.pyc
+__pycache__/
