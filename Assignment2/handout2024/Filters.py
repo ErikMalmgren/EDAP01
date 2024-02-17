@@ -20,6 +20,10 @@ class HMMFilter:
         #print( self.__f)
         
         #...
+        Od = self.__om.get_o_reading(sensorR)
+        T = self.__tm.get_T_transp()
+        self.__f = Od @ T @ self.__f
+        self.__f /= np.sum(self.__f)
         return self.__f
 
         
