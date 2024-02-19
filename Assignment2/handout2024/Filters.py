@@ -25,6 +25,19 @@ class HMMFilter:
         self.__f = Od @ T @ self.__f
         self.__f /= np.sum(self.__f)
         return self.__f
+    
+    def forwardBackwardSmoothing(self, sensorR):
+        #...
+        forwardEstimate = self.filter(sensorR.pop(0))
+        backwards = np.ones(self.__sm.get_num_of_states())
+        for i in reversed(sensorR):
+            Od = self.__om.get_o_reading(i)
+            T = self.__tm.get_T()
+            backwards = T @ Od @ backwards
+        smooth = forwardEstimate * backwards
+        smooth /= np.sum(smooth)
+
+        return smooth
 
         
         
